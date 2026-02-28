@@ -32,17 +32,17 @@ function formatAMPM(dateStr) {
     return date.toLocaleDateString() + " - " + strTime;
 }
 
-// Función para ver qué tan urgente es
+// Función para ver qué tan urgente es (Nuevos colores pastel)
 function getUrgencyClass(dateStr) {
-    if (!dateStr) return "urgente-verde";
+    if (!dateStr) return "verde";
     const entrega = new Date(dateStr);
     const ahora = new Date();
     const difHoras = (entrega - ahora) / (1000 * 60 * 60);
 
-    if (difHoras < 0) return "urgente-rojo"; // Ya pasó
-    if (difHoras <= 10) return "urgente-rojo"; // Menos de 10h
-    if (difHoras <= 48) return "urgente-amarillo"; // Menos de 2 días
-    return "urgente-verde";
+    if (difHoras < 0) return "rojo"; // Ya pasó
+    if (difHoras <= 10) return "rojo"; // Muy urgente (menos de 10h)
+    if (difHoras <= 48) return "amarillo"; // Próximo (2 días)
+    return "verde";
 }
 
 form.addEventListener("submit", async (e) => {
@@ -61,6 +61,7 @@ form.addEventListener("submit", async (e) => {
     form.reset();
 });
 
+// ESTA ES LA PARTE QUE CAMBIA (Línea 66 en adelante)
 onSnapshot(productsCol, (snapshot) => {
     listContainer.innerHTML = "";
     snapshot.forEach((docSnap) => {
@@ -69,19 +70,24 @@ onSnapshot(productsCol, (snapshot) => {
         const urgency = getUrgencyClass(item.deliveryTime);
         
         const card = document.createElement("div");
-        card.className = `card ${urgency}`;
+        card.className = `card ${urgency}`; // Aplica el color según urgencia
         card.innerHTML = `
-            <img src="${item.photo || 'https://via.placeholder.com/100'}" onclick="showBigPhoto('${item.photo}')">
-            <div class="card-info">
-                <h4>${item.name}</h4>
-                <p>💰 Venta: $${item.sellPrice} | Stock: ${item.quantity}</p>
-                <p>📍 ${item.deliveryPlace || 'No asignado'}</p>
-                <p>⏰ ${formatAMPM(item.deliveryTime)}</p>
-                <div class="actions">
-                    <a href="https://wa.me/${item.whatsapp}" class="btn-action btn-wa">🟢</a>
-                    <button class="btn-action btn-edit" onclick="editData('${id}')">📅</button>
-                    <button class="btn-action btn-delete" onclick="deleteProd('${id}')">🗑️</button>
+            <div class="card-header">
+                <img src="${item.photo || 'https://via.placeholder.com/100'}" onclick="showBigPhoto('${item.photo}')">
+                <div>
+                    <h2 style="margin:0; font-size:20px;">${item.name}</h2>
+                    <span style="color:#666">Stock: ${item.quantity} unidades</span>
                 </div>
+            </div>
+            <div class="card-body">
+                <p><strong>💰 Precio Venta:</strong> $${item.sellPrice}</p>
+                <p><strong>📍 Entrega en:</strong> ${item.deliveryPlace || 'No definido'}</p>
+                <p><strong>⏰ Cuándo:</strong> ${formatAMPM(item.deliveryTime)}</p>
+            </div>
+            <div class="card-actions">
+                <a href="https://wa.me/${item.whatsapp}" class="btn-item wa" target="_blank">💬</a>
+                <button class="btn-item edit" onclick="editData('${id}')">📅</button>
+                <button class="btn-item del" onclick="deleteProd('${id}')">🗑️</button>
             </div>
         `;
         listContainer.appendChild(card);
@@ -95,13 +101,19 @@ window.showBigPhoto = (url) => {
 };
 
 window.deleteProd = async (id) => {
-    if(confirm("¿Borrar todo?")) await deleteDoc(doc(db, "productos", id));
+    if(confirm("¿Borrar permanentemente este producto?")) {
+        await deleteDoc(doc(db, "productos", id));
+    }
 };
 
 window.editData = async (id) => {
-    const newPlace = prompt("¿Nuevo lugar?");
-    const newTime = prompt("¿Nueva fecha/hora? (AAAA-MM-DD HH:MM)");
+    const newPlace = prompt("¿Nuevo lugar de entrega?");
+    const newTime = prompt("Nueva fecha y hora (ejemplo: 2024-05-15 14:30):");
     if(newPlace || newTime) {
-        await updateDoc(doc(db, "productos", id), { deliveryPlace: newPlace, deliveryTime: newTime });
+        await updateDoc(doc(db, "productos", id), { 
+            deliveryPlace: newPlace || "", 
+            deliveryTime: newTime || "" 
+        });
     }
 };
+
