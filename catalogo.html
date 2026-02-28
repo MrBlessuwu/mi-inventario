@@ -6,27 +6,46 @@
     <title>Cajita Mágica GT - Catálogo ✨</title>
     <link rel="icon" type="image/jpg" href="https://i.pinimg.com/736x/86/cc/77/86cc7719e78a264a938c290076391499.jpg">
     <style>
-        body { font-family: sans-serif; background: #fdf0f3; margin: 0; padding-bottom: 50px; }
-        .hero { background: #ff85a2; color: white; text-align: center; padding: 30px 10px; border-radius: 0 0 30px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fdf0f3; margin: 0; padding-bottom: 20px; color: #333; }
+        .hero { background: #ff85a2; color: white; text-align: center; padding: 40px 10px; border-radius: 0 0 30px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-        .product-card { background: white; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .product-card img { width: 100%; height: 160px; object-fit: cover; }
-        .p-info { padding: 12px; text-align: center; }
-        .p-info h3 { margin: 5px 0; font-size: 16px; color: #444; }
-        .p-price { color: #ff4d6d; font-weight: bold; font-size: 20px; margin-bottom: 10px; display: block; }
-        .btn-wa { background: #25d366; color: white; text-decoration: none; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 14px; margin-top: auto; }
+        .product-card { background: white; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .product-card:active { transform: scale(0.98); }
+        .product-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
+        .p-info { padding: 12px; text-align: center; display: flex; flex-direction: column; flex-grow: 1; }
+        .p-info h3 { margin: 5px 0; font-size: 15px; color: #444; height: 40px; overflow: hidden; }
+        .p-price { color: #ff4d6d; font-weight: bold; font-size: 18px; margin-bottom: 12px; display: block; }
+        .btn-wa { background: #25d366; color: white; text-decoration: none; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        
+        /* Footer Estilizado */
+        footer { margin-top: 40px; padding: 30px 20px; background: white; text-align: center; border-radius: 30px 30px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.03); }
+        .footer-title { color: #ff85a2; margin-bottom: 15px; font-size: 18px; }
+        .contact-link { display: block; color: #555; text-decoration: none; margin: 8px 0; font-size: 14px; }
+        .contact-link strong { color: #333; }
+
         #photo-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; }
-        #modal-img { max-width: 90%; border-radius: 15px; }
+        #modal-img { max-width: 90%; max-height: 80%; border-radius: 15px; }
     </style>
 </head>
 <body>
     <div class="hero">
         <h1 style="margin:0">Cajita Mágica GT 🐧</h1>
-        <p style="opacity:0.9">¡Elige lo que más te guste!</p>
+        <p style="opacity:0.9">Catálogo de Productos</p>
     </div>
 
     <div id="grid-productos" class="grid">
         </div>
+
+    <footer>
+        <div class="footer-title">✨ ¡Contáctanos! ✨</div>
+        <a href="https://wa.me/50252191412" class="contact-link">
+            <strong>Principal:</strong> +502 5219-1412
+        </a>
+        <a href="tel:50242378820" class="contact-link">
+            <strong>Opcional:</strong> +502 4237-8820
+        </a>
+        <p style="font-size: 12px; color: #aaa; margin-top: 20px;">Guatemala 🇬🇹</p>
+    </footer>
 
     <div id="photo-modal" onclick="this.style.display='none'"><img id="modal-img" src=""></div>
 
@@ -42,6 +61,7 @@
             messagingSenderId: "791233911695",
             appId: "1:791233911695:web:030a17ce8e76e5f79849fa"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -50,14 +70,19 @@
             grid.innerHTML = "";
             snapshot.forEach(docSnap => {
                 const p = docSnap.data();
-               if (p.stock > 0 && p.visible !== false) {
+                if (p.stock > 0 && p.visible !== false) {
+                    const mensaje = encodeURIComponent(`¡Hola! Me interesa el producto: ${p.name}`);
+                    const urlWA = `https://wa.me/50252191412?text=${mensaje}`;
+
                     grid.innerHTML += `
                         <div class="product-card">
                             <img src="${p.photo || 'https://via.placeholder.com/150'}" onclick="showPic('${p.photo}')">
                             <div class="p-info">
                                 <h3>${p.name}</h3>
                                 <span class="p-price">Q${p.sellPrice}</span>
-                                <a href="https://wa.me/502XXXXXXXX?text=Hola! Quiero pedir: ${p.name}" class="btn-wa">Pedir por WA</a>
+                                <a href="${urlWA}" target="_blank" class="btn-wa">
+                                    Pedido WA 💬
+                                </a>
                             </div>
                         </div>`;
                 }
@@ -65,8 +90,9 @@
         });
 
         window.showPic = (url) => {
+            if(!url) return;
             document.getElementById("photo-modal").style.display = "flex";
-            document.getElementById("modal-img").src = url || 'https://via.placeholder.com/300';
+            document.getElementById("modal-img").src = url;
         };
     </script>
 </body>
