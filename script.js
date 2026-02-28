@@ -201,4 +201,14 @@ window.showBigPhoto = (url) => {
     document.getElementById("modal-img").src = url || 'https://via.placeholder.com/300';
     modal.style.display = "flex";
 };
+// Función para cambiar si el cliente ve o no el producto
+window.toggleVisibility = async (id, currentStatus) => {
+    try {
+        await updateDoc(doc(db, "productos", id), {
+            visible: !currentStatus
+        });
+    } catch (error) {
+        alert("Error al cambiar visibilidad");
+    }
+};
 
