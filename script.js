@@ -118,7 +118,12 @@ onSnapshot(invCol, (snapshot) => {
                     <img src="${p.photo || 'https://via.placeholder.com/100'}" onclick="window.showBigPhoto('${p.photo}')">
                     <div>
                         <h2>${p.name}</h2>
-                        <span class="price-tag">Venta: Q${p.sellPrice} | Stock: ${p.stock}</span>
+                        <div class="price-tag-container">
+                            <span class="price-tag">Compra: Q${p.buyPrice || 0}</span>
+                            <span class="price-tag" style="background: #d4edda; color: #155724;">Venta: Q${p.sellPrice}</span>
+                        </div>
+                        <span style="font-weight: bold; font-size: 14px;">📦 Stock: ${p.stock}</span><br>
+                        <small>${p.visible !== false ? "👁️ Público" : "🚫 Oculto"}</small>
                     </div>
                 </div>
                 <div class="card-actions">
@@ -202,6 +207,7 @@ window.showBigPhoto = (url) => {
     document.getElementById("modal-img").src = url || 'https://via.placeholder.com/300';
     modal.style.display = "flex";
 };
+
 
 
 
