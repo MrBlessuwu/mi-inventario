@@ -3,41 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mi Inventario Pro</title>
+    <title>Inventario Pro Móvil</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>📦 Mis Pedidos</h1>
-        
-        <form id="product-form">
-            <input type="text" id="name" placeholder="Producto" required>
-            <div class="row">
-                <input type="number" id="buyPrice" placeholder="Costo" step="0.01">
-                <input type="number" id="sellPrice" placeholder="Venta" step="0.01">
-            </div>
-            <input type="number" id="quantity" placeholder="Cantidad">
-            <input type="text" id="photo" placeholder="Link de Foto (URL)">
-            <input type="tel" id="whatsapp" placeholder="WhatsApp Cliente">
-            <input type="text" id="deliveryPlace" placeholder="Lugar Entrega">
-            <input type="datetime-local" id="deliveryTime">
-            <button type="submit" id="btn-save">➕ Guardar en Inventario</button>
+    <div class="app-container">
+        <header>
+            <h1>📦 Mi Negocio</h1>
+        </header>
+
+        <form id="product-form" class="main-form">
+            <section>
+                <label>Información del Producto</label>
+                <input type="text" id="name" placeholder="¿Qué vendes?" required>
+                <div class="input-group">
+                    <input type="number" id="buyPrice" placeholder="Costo $" step="0.01">
+                    <input type="number" id="sellPrice" placeholder="Venta $" step="0.01">
+                </div>
+                <input type="number" id="quantity" placeholder="Cantidad en Stock">
+                <input type="url" id="photo" placeholder="Enlace de la foto (URL)">
+            </section>
+
+            <section>
+                <label>Datos de Entrega y Cliente</label>
+                <input type="tel" id="whatsapp" placeholder="WhatsApp del Cliente">
+                <input type="text" id="deliveryPlace" placeholder="📍 Lugar de entrega">
+                <input type="datetime-local" id="deliveryTime">
+            </section>
+
+            <button type="submit" id="btn-save">💾 GUARDAR TODO</button>
         </form>
 
-        <div id="urgentes-section">
-            <h3>🚨 Entregas Próximas</h3>
-            <div id="lista-urgentes"></div>
-        </div>
+        <hr class="separator">
 
-        <h3>📦 Todos los Productos</h3>
-        <div id="inventory-list">
+        <div id="inventory-list" class="vertical-list">
             </div>
     </div>
 
     <div id="photo-modal" onclick="this.style.display='none'">
-        <img id="modal-img" src="" alt="Foto grande">
+        <img id="modal-img" src="">
     </div>
 
     <script type="module" src="script.js"></script>
 </body>
 </html>
+
