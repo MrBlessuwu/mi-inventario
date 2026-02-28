@@ -3,57 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inventario Pro</title>
+    <title>Cajita Mágica GT - Admin</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        <nav class="tab-menu">
-            <button class="tab-btn active" onclick="showTab('tab-inventario')">📦 Bodega</button>
-            <button class="tab-btn" onclick="showTab('tab-entregas')">🚚 Entregas</button>
-        </nav>
-
-        <div id="tab-inventario" class="tab-content active">
-            <form id="form-inventario" class="main-form">
-                <section>
-                    <label>Nuevo Producto en Bodega</label>
-                    <input type="text" id="inv-name" placeholder="Nombre del producto" required>
-                    <div class="input-group">
-                        <input type="number" id="inv-buy" placeholder="Costo Compra Q">
-                        <input type="number" id="inv-sell" placeholder="Precio Venta Q">
-                    </div>
-                    <input type="number" id="inv-stock" placeholder="Stock Inicial" required>
-                    <input type="url" id="inv-photo" placeholder="Link Foto">
-                </section>
-                <button type="submit">💾 Guardar Producto</button>
-            </form>
-            <div id="list-inventario" class="vertical-list"></div>
-        </div>
-
-        <div id="tab-entregas" class="tab-content">
-            <form id="form-entrega" class="main-form">
-                <section id="pedidos-inputs">
-                    <label>Registrar Pedido (Hasta 5 productos)</label>
-                    <div class="pedido-row">
-                        <select class="ent-name-select" required><option value="">Producto 1...</option></select>
-                        <input type="number" class="ent-qty-input" placeholder="Cant." required>
-                    </div>
-                    <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 2...</option></select><input type="number" class="ent-qty-input" placeholder="Cant."></div>
-                    <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 3...</option></select><input type="number" class="ent-qty-input" placeholder="Cant."></div>
-                    <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 4...</option></select><input type="number" class="ent-qty-input" placeholder="Cant."></div>
-                    <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 5...</option></select><input type="number" class="ent-qty-input" placeholder="Cant."></div>
-                    
-                    <input type="tel" id="ent-wa" placeholder="WhatsApp Cliente">
-                    <input type="text" id="ent-place" placeholder="📍 Lugar de entrega">
-                    <input type="datetime-local" id="ent-time">
-                </section>
-                <button type="submit" style="background: #007bff;">📝 Crear Entrega</button>
-            </form>
-            <div id="list-entregas" class="vertical-list"></div>
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>🐧 Acceso Privado</h2>
+            <p>Introduce la contraseña de administrador</p>
+            <input type="password" id="pass-input" placeholder="Contraseña">
+            <button onclick="checkPass()">Entrar</button>
         </div>
     </div>
+
+    <div id="app-content" style="display: none;">
+        <div class="app-container">
+            <nav class="tab-menu">
+                <button class="tab-btn active" onclick="showTab('tab-inventario')">📦 Bodega</button>
+                <button class="tab-btn" onclick="showTab('tab-entregas')">🚚 Entregas</button>
+            </nav>
+
+            <div id="tab-inventario" class="tab-content active">
+                <form id="form-inventario" class="main-form">
+                    <section>
+                        <label>Nuevo Producto</label>
+                        <input type="text" id="inv-name" placeholder="Nombre" required>
+                        <div class="input-group">
+                            <input type="number" id="inv-buy" placeholder="Costo Q">
+                            <input type="number" id="inv-sell" placeholder="Venta Q">
+                        </div>
+                        <input type="number" id="inv-stock" placeholder="Stock Inicial" required>
+                        <input type="url" id="inv-photo" placeholder="Link Foto">
+                    </section>
+                    <button type="submit">💾 Guardar en Bodega</button>
+                </form>
+                <div id="list-inventario" class="vertical-list"></div>
+            </div>
+
+            <div id="tab-entregas" class="tab-content">
+                <form id="form-entrega" class="main-form">
+                    <section id="pedidos-inputs">
+                        <label>Registrar Pedido (Descuenta Stock)</label>
+                        <div class="pedido-row">
+                            <select class="ent-name-select" required><option value="">Producto 1...</option></select>
+                            <input type="number" class="ent-qty-input" placeholder="Cant.">
+                        </div>
+                        <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 2...</option></select><input type="number" class="ent-qty-input"></div>
+                        
+                        <input type="tel" id="ent-wa" placeholder="WhatsApp Cliente">
+                        <input type="text" id="ent-place" placeholder="📍 Lugar">
+                        <input type="datetime-local" id="ent-time">
+                    </section>
+                    <button type="submit" style="background: #007bff;">📝 Crear Entrega</button>
+                </form>
+                <div id="list-entregas" class="vertical-list"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="photo-modal" onclick="this.style.display='none'"><img id="modal-img" src=""></div>
     <script type="module" src="script.js"></script>
 </body>
 </html>
-
