@@ -16,7 +16,34 @@ const db = getFirestore(app);
 const productsCol = collection(db, "productos");
 
 const form = document.getElementById("product-form");
-const list = document.getElementById("inventory-list");
+const listContainer = document.getElementById("inventory-list");
+
+// Función para poner la hora en formato 12h AM/PM
+function formatAMPM(dateStr) {
+    if (!dateStr) return "Sin fecha";
+    const date = new Date(dateStr);
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; 
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    const strTime = hours + ':' + minutes + ' ' + ampm;
+    return date.toLocaleDateString() + " - " + strTime;
+}
+
+// Función para ver qué tan urgente es
+function getUrgencyClass(dateStr) {
+    if (!dateStr) return "urgente-verde";
+    const entrega = new Date(dateStr);
+    const ahora = new Date();
+    const difHoras = (entrega - ahora) / (1000 * 60 * 60);
+
+    if (difHoras < 0) return "urgente-rojo"; // Ya pasó
+    if (difHoras <= 10) return "urgente-rojo"; // Menos de 10h
+    if (difHoras <= 48) return "urgente-amarillo"; // Menos de 2 días
+    return "urgente-verde";
+}
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -30,54 +57,51 @@ form.addEventListener("submit", async (e) => {
         deliveryPlace: document.getElementById("deliveryPlace").value,
         deliveryTime: document.getElementById("deliveryTime").value
     };
-
-    try {
-        await addDoc(productsCol, data);
-        form.reset();
-        alert("Registrado correctamente");
-    } catch (error) { console.error(error); }
+    await addDoc(productsCol, data);
+    form.reset();
 });
 
 onSnapshot(productsCol, (snapshot) => {
-    list.innerHTML = "";
+    listContainer.innerHTML = "";
     snapshot.forEach((docSnap) => {
         const item = docSnap.data();
         const id = docSnap.id;
-        const waLink = `https://wa.me/${item.whatsapp}?text=Confirmación: ${item.name}. Entrega en: ${item.deliveryPlace} el ${item.deliveryTime}`;
-
-        list.innerHTML += `
-            <tr>
-                <td><img src="${item.photo || 'https://via.placeholder.com/50'}" width="50"></td>
-                <td><strong>${item.name}</strong></td>
-                <td>C: $${item.buyPrice}<br>V: $${item.sellPrice}</td>
-                <td>${item.quantity}</td>
-                <td>
-                    <small>📍 ${item.deliveryPlace || 'No asignado'}</small><br>
-                    <small>⏰ ${item.deliveryTime?.replace('T', ' ') || 'No asignada'}</small>
-                </td>
-                <td>
-                    <a href="${waLink}" target="_blank">🟢</a>
-                    <button class="btn-edit" onclick="changeDelivery('${id}')" title="Cambiar Entrega">📅</button>
-                    <button class="btn-delete" onclick="deleteProduct('${id}')">🗑️</button>
-                </td>
-            </tr>
+        const urgency = getUrgencyClass(item.deliveryTime);
+        
+        const card = document.createElement("div");
+        card.className = `card ${urgency}`;
+        card.innerHTML = `
+            <img src="${item.photo || 'https://via.placeholder.com/100'}" onclick="showBigPhoto('${item.photo}')">
+            <div class="card-info">
+                <h4>${item.name}</h4>
+                <p>💰 Venta: $${item.sellPrice} | Stock: ${item.quantity}</p>
+                <p>📍 ${item.deliveryPlace || 'No asignado'}</p>
+                <p>⏰ ${formatAMPM(item.deliveryTime)}</p>
+                <div class="actions">
+                    <a href="https://wa.me/${item.whatsapp}" class="btn-action btn-wa">🟢</a>
+                    <button class="btn-action btn-edit" onclick="editData('${id}')">📅</button>
+                    <button class="btn-action btn-delete" onclick="deleteProd('${id}')">🗑️</button>
+                </div>
+            </div>
         `;
+        listContainer.appendChild(card);
     });
 });
 
-window.deleteProduct = async (id) => {
-    if(confirm("¿Eliminar todos los datos de este producto?")) {
-        await deleteDoc(doc(db, "productos", id));
-    }
+window.showBigPhoto = (url) => {
+    const modal = document.getElementById("photo-modal");
+    document.getElementById("modal-img").src = url || 'https://via.placeholder.com/300';
+    modal.style.display = "flex";
 };
 
-window.changeDelivery = async (id) => {
-    const newPlace = prompt("Nuevo lugar de entrega:");
-    const newTime = prompt("Nueva fecha/hora (ej: 2023-12-31 15:00):");
-    if (newPlace || newTime) {
-        await updateDoc(doc(db, "productos", id), { 
-            deliveryPlace: newPlace, 
-            deliveryTime: newTime 
-        });
+window.deleteProd = async (id) => {
+    if(confirm("¿Borrar todo?")) await deleteDoc(doc(db, "productos", id));
+};
+
+window.editData = async (id) => {
+    const newPlace = prompt("¿Nuevo lugar?");
+    const newTime = prompt("¿Nueva fecha/hora? (AAAA-MM-DD HH:MM)");
+    if(newPlace || newTime) {
+        await updateDoc(doc(db, "productos", id), { deliveryPlace: newPlace, deliveryTime: newTime });
     }
 };
