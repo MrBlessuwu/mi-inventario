@@ -108,7 +108,56 @@ onSnapshot(invCol, (snapshot) => {
     });
 });
 
-// --- RENDERIZADO ENTREGAS ---
+// ... (Mantén tus importaciones y firebaseConfig igual arriba) ...
+
+// --- ENTREGAS (MÚLTIPLES PRODUCTOS CON DESCUENTO DE STOCK) ---
+document.getElementById("form-entrega").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const selects = document.querySelectorAll(".ent-name-select");
+    const inputs = document.querySelectorAll(".ent-qty-input");
+    
+    let itemsPedidos = [];
+    let granTotal = 0;
+    let actualizacionesStock = []; // Para guardar los cambios de bodega
+
+    for (let i = 0; i < selects.length; i++) {
+        const name = selects[i].value;
+        const qty = Number(inputs[i].value);
+        if (name && qty > 0) {
+            const prod = productosLocales.find(p => p.name === name);
+            if (prod.stock < qty) {
+                alert(`❌ Stock insuficiente de ${name}. Solo tienes ${prod.stock}`);
+                return;
+            }
+            itemsPedidos.push({ name, qty, unitPrice: prod.sellPrice });
+            granTotal += qty * prod.sellPrice;
+            
+            // Preparamos la resta
+            actualizacionesStock.push({ id: prod.id, nuevoStock: prod.stock - qty });
+        }
+    }
+
+    try {
+        // 1. Crear la entrega
+        await addDoc(entCol, {
+            items: itemsPedidos,
+            total: granTotal,
+            whatsapp: document.getElementById("ent-wa").value,
+            place: document.getElementById("ent-place").value,
+            time: document.getElementById("ent-time").value
+        });
+
+        // 2. Restar del inventario automáticamente
+        for (const act of actualizacionesStock) {
+            await updateDoc(doc(db, "productos", act.id), { stock: act.nuevoStock });
+        }
+
+        e.target.reset();
+        alert("✅ Pedido creado y stock descontado.");
+    } catch (err) { console.error(err); }
+});
+
+// --- RENDERIZADO ENTREGAS (CON BOTÓN EDITAR) ---
 onSnapshot(entCol, (snapshot) => {
     const list = document.getElementById("list-entregas");
     list.innerHTML = "";
@@ -116,54 +165,24 @@ onSnapshot(entCol, (snapshot) => {
         const e = docSnap.data();
         const id = docSnap.id;
         const urgency = window.getUrgencyClass(e.time);
-
-        let itemsHTML = e.items.map(i => `• ${i.qty} x ${i.name} (Q${i.unitPrice} c/u)` ).join("<br>");
+        let itemsHTML = e.items.map(i => `• ${i.qty} x ${i.name}`).join("<br>");
 
         list.innerHTML += `
             <div class="card ${urgency}">
                 <div class="card-body" style="padding:15px">
-                    <div style="margin-bottom:10px">${itemsHTML}</div>
-                    <span class="total-pay">TOTAL A COBRAR: Q${e.total}</span>
-                    <p>📍 ${e.place}</p>
+                    <div style="font-weight:bold">${itemsHTML}</div>
+                    <span class="total-pay">TOTAL: Q${e.total}</span>
+                    <p>📍 ${e.place || 'Sin lugar'}</p>
                     <p>⏰ ${window.formatAMPM(e.time)}</p>
                 </div>
                 <div class="card-actions">
                     <a href="https://wa.me/${e.whatsapp}" class="btn-item wa" target="_blank">💬</a>
+                    <button class="btn-item edit" onclick="window.editDelivery('${id}')">📅</button>
                     <button class="btn-item del" onclick="window.deleteItem('entregas','${id}')">🗑️</button>
                 </div>
             </div>`;
     });
 });
-
-// --- FUNCIONES AUXILIARES ---
-window.updateStock = async (id, oldStock) => {
-    const nuevo = prompt("Nuevo stock total:", oldStock);
-    if (nuevo !== null) await updateDoc(doc(db, "productos", id), { stock: Number(nuevo) });
-};
-
-window.deleteItem = async (col, id) => {
-    if(confirm("¿Seguro de borrar?")) await deleteDoc(doc(db, col, id));
-};
-
-window.formatAMPM = (dateStr) => {
-    if (!dateStr) return "Sin fecha";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString() + " " + date.getHours() % 12 + ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (date.getHours() >= 12 ? ' PM' : ' AM');
-};
-
-window.getUrgencyClass = (dateStr) => {
-    if (!dateStr) return "verde";
-    const dif = (new Date(dateStr) - new Date()) / 3600000;
-    if (dif < 0 || dif <= 10) return "rojo";
-    if (dif <= 48) return "amarillo";
-    return "verde";
-};
-
-window.showBigPhoto = (url) => {
-    const modal = document.getElementById("photo-modal");
-    document.getElementById("modal-img").src = url || 'https://via.placeholder.com/300';
-    modal.style.display = "flex";
-};
 
 
 
