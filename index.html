@@ -7,44 +7,40 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
 
-    <div id="app-content" style="display: none;">
+    <div id="app-content">
         <div class="app-container">
             <nav class="tab-menu">
                 <button class="tab-btn active" id="btn-tab-inv">📦 Bodega</button>
                 <button class="tab-btn" id="btn-tab-ent">🚚 Entregas</button>
             </nav>
 
-           <div id="app-content" style="display: block;"> 
-
-    <div id="tab-inventario" class="tab-content active">
-        <form id="form-inventario" class="main-form">
-            <section>
-                <label>Nuevo Producto en Bodega</label>
-                <input type="text" id="inv-name" placeholder="Nombre del producto" required>
-                <div class="input-group">
-                    <input type="number" id="inv-buy" placeholder="Costo Compra Q">
-                    <input type="number" id="inv-sell" placeholder="Precio Venta Q">
-                </div>
-                <input type="number" id="inv-stock" placeholder="Stock Inicial" required>
-                <input type="url" id="inv-photo" placeholder="Link de Foto">
-                
-                <label style="display: flex; flex-direction: row; align-items: center; gap: 10px; border: none; background: #f0f0f0; padding: 10px; border-radius: 8px; cursor: pointer;">
-                    <input type="checkbox" id="inv-visible" checked style="width: 20px; height: 20px; margin: 0;"> 
-                    <span>¿Mostrar en Catálogo Público?</span>
-                </label>
-            </section>
-            <button type="submit">💾 Guardar en Bodega</button>
-        </form>
-        <div id="list-inventario" class="vertical-list"></div>
-    </div>
+            <div id="tab-inventario" class="tab-content active">
+                <form id="form-inventario" class="main-form">
+                    <section>
+                        <label>Nuevo Producto en Bodega</label>
+                        <input type="text" id="inv-name" placeholder="Nombre del producto" required>
+                        <div class="input-group">
+                            <input type="number" id="inv-buy" placeholder="Costo Compra Q">
+                            <input type="number" id="inv-sell" placeholder="Precio Venta Q">
+                        </div>
+                        <input type="number" id="inv-stock" placeholder="Stock Inicial" required>
+                        <input type="url" id="inv-photo" placeholder="Link de Foto (URL)">
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; background: #eee; padding: 10px; border-radius: 10px;">
+                            <input type="checkbox" id="inv-visible" checked style="width:20px; height:20px;">
+                            <span>Mostrar en Catálogo Público</span>
+                        </label>
+                    </section>
+                    <button type="submit">💾 Guardar en Bodega</button>
+                </form>
+                <div id="list-inventario" class="vertical-list"></div>
+            </div>
 
             <div id="tab-entregas" class="tab-content">
                 <form id="form-entrega" class="main-form">
                     <section id="pedidos-inputs">
                         <label>Registrar Entrega (Resta Stock)</label>
-                        
                         <div class="pedido-row">
                             <select class="ent-name-select" required><option value="">Producto 1...</option></select>
                             <input type="number" class="ent-qty-input" placeholder="Cant.">
@@ -57,16 +53,6 @@
                             <select class="ent-name-select"><option value="">Producto 3...</option></select>
                             <input type="number" class="ent-qty-input" placeholder="Cant.">
                         </div>
-                        <div class="pedido-row">
-                            <select class="ent-name-select"><option value="">Producto 4...</option></select>
-                            <input type="number" class="ent-qty-input" placeholder="Cant.">
-                        </div>
-                        <div class="pedido-row">
-                            <select class="ent-name-select"><option value="">Producto 5...</option></select>
-                            <input type="number" class="ent-qty-input" placeholder="Cant.">
-                        </div>
-
-                        <hr>
                         <input type="tel" id="ent-wa" placeholder="WhatsApp del Cliente">
                         <input type="text" id="ent-place" placeholder="📍 Lugar de entrega">
                         <input type="datetime-local" id="ent-time">
@@ -78,11 +64,8 @@
         </div>
     </div>
 
-    <div id="photo-modal" onclick="this.style.display='none'">
-        <img id="modal-img" src="">
-    </div>
+    <div id="photo-modal" onclick="this.style.display='none'"><img id="modal-img" src=""></div>
 
     <script type="module" src="script.js"></script>
 </body>
 </html>
-
