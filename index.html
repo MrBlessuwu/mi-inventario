@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inventario y Entregas</title>
+    <title>Inventario Pro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,25 +19,30 @@
                     <label>Nuevo Producto en Bodega</label>
                     <input type="text" id="inv-name" placeholder="Nombre del producto" required>
                     <div class="input-group">
-                        <input type="number" id="inv-buy" placeholder="Costo $">
-                        <input type="number" id="inv-sell" placeholder="Venta $">
+                        <input type="number" id="inv-buy" placeholder="Costo Compra Q">
+                        <input type="number" id="inv-sell" placeholder="Precio Venta Q">
                     </div>
-                    <input type="number" id="inv-stock" placeholder="Cantidad Total en Stock" required>
+                    <input type="number" id="inv-stock" placeholder="Stock Inicial" required>
                     <input type="url" id="inv-photo" placeholder="Link Foto">
                 </section>
-                <button type="submit">💾 Guardar en Bodega</button>
+                <button type="submit">💾 Guardar Producto</button>
             </form>
             <div id="list-inventario" class="vertical-list"></div>
         </div>
 
         <div id="tab-entregas" class="tab-content">
             <form id="form-entrega" class="main-form">
-                <section>
-                    <label>Registrar Nuevo Pedido</label>
-                    <select id="ent-name" required>
-                        <option value="">Selecciona un producto...</option>
-                    </select>
-                    <input type="number" id="ent-qty" placeholder="Cantidad a pedir" required>
+                <section id="pedidos-inputs">
+                    <label>Registrar Pedido (Hasta 5 productos)</label>
+                    <div class="pedido-row">
+                        <select class="ent-name-select" required><option value="">Producto 1...</option></select>
+                        <input type="number" class="ent-qty-input" placeholder="Cant." required>
+                    </div>
+                    <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 2...</option></select><input type="number" class="ent-qty-input" placeholder="Cant."></div>
+                    <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 3...</option></select><input type="number" class="ent-qty-input" placeholder="Cant."></div>
+                    <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 4...</option></select><input type="number" class="ent-qty-input" placeholder="Cant."></div>
+                    <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 5...</option></select><input type="number" class="ent-qty-input" placeholder="Cant."></div>
+                    
                     <input type="tel" id="ent-wa" placeholder="WhatsApp Cliente">
                     <input type="text" id="ent-place" placeholder="📍 Lugar de entrega">
                     <input type="datetime-local" id="ent-time">
@@ -47,11 +52,8 @@
             <div id="list-entregas" class="vertical-list"></div>
         </div>
     </div>
-
     <div id="photo-modal" onclick="this.style.display='none'"><img id="modal-img" src=""></div>
-
     <script type="module" src="script.js"></script>
 </body>
 </html>
-
 
