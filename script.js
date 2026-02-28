@@ -17,17 +17,7 @@ const entCol = collection(db, "entregas");
 
 let productosLocales = [];
 
-// --- SEGURIDAD Y NAVEGACIÓN ---
-document.getElementById('btn-login').addEventListener('click', () => {
-    const pass = document.getElementById('pass-input').value;
-    if (pass === "pinguinito") {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-content').style.display = 'block';
-    } else {
-        alert("Contraseña incorrecta 🐧");
-    }
-});
-
+// --- NAVEGACIÓN ---
 const showTab = (tabName) => {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -52,13 +42,14 @@ document.getElementById("form-inventario").addEventListener("submit", async (e) 
         buyPrice: Number(document.getElementById("inv-buy").value),
         sellPrice: Number(document.getElementById("inv-sell").value),
         stock: Number(document.getElementById("inv-stock").value),
-        photo: document.getElementById("inv-photo").value
+        photo: document.getElementById("inv-photo").value,
+        visible: document.getElementById("inv-visible").checked // Guarda si es visible
     });
     e.target.reset();
     alert("Producto guardado ✨");
 });
 
-// --- GESTIÓN DE ENTREGAS (CON DESCUENTO AUTOMÁTICO) ---
+// --- GESTIÓN DE ENTREGAS ---
 document.getElementById("form-entrega").addEventListener("submit", async (e) => {
     e.preventDefault();
     const selects = document.querySelectorAll(".ent-name-select");
@@ -103,7 +94,7 @@ document.getElementById("form-entrega").addEventListener("submit", async (e) => 
     } catch (err) { console.error(err); }
 });
 
-// --- ESCUCHA EN TIEMPO REAL ---
+// --- RENDERIZADO BODEGA ---
 onSnapshot(invCol, (snapshot) => {
     const list = document.getElementById("list-inventario");
     const selects = document.querySelectorAll(".ent-name-select");
@@ -117,13 +108,16 @@ onSnapshot(invCol, (snapshot) => {
         productosLocales.push({...p, id});
         options += `<option value="${p.name}">${p.name} (Disp: ${p.stock})</option>`;
 
+        const estadoCat = p.visible !== false ? "👁️ En Catálogo" : "🚫 Oculto";
+
         list.innerHTML += `
             <div class="card verde">
                 <div class="card-header">
                     <img src="${p.photo || 'https://via.placeholder.com/100'}" onclick="window.showBigPhoto('${p.photo}')">
                     <div>
                         <h2>${p.name}</h2>
-                        <span class="price-tag">Venta: Q${p.sellPrice} | Stock: ${p.stock}</span>
+                        <span class="price-tag">Venta: Q${p.sellPrice} | Stock: ${p.stock}</span><br>
+                        <small style="color: #666;">${estadoCat}</small>
                     </div>
                 </div>
                 <div class="card-actions">
@@ -135,6 +129,7 @@ onSnapshot(invCol, (snapshot) => {
     selects.forEach(s => s.innerHTML = options);
 });
 
+// --- RENDERIZADO ENTREGAS ---
 onSnapshot(entCol, (snapshot) => {
     const list = document.getElementById("list-entregas");
     list.innerHTML = "";
