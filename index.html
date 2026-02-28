@@ -10,30 +10,30 @@
     <div id="login-screen">
         <div class="login-card">
             <h2>🐧 Acceso Privado</h2>
-            <p>Introduce la contraseña de administrador</p>
+            <p>Cajita Mágica GT</p>
             <input type="password" id="pass-input" placeholder="Contraseña">
-            <button onclick="checkPass()">Entrar</button>
+            <button id="btn-login">Entrar</button>
         </div>
     </div>
 
     <div id="app-content" style="display: none;">
         <div class="app-container">
             <nav class="tab-menu">
-                <button class="tab-btn active" onclick="showTab('tab-inventario')">📦 Bodega</button>
-                <button class="tab-btn" onclick="showTab('tab-entregas')">🚚 Entregas</button>
+                <button class="tab-btn active" id="btn-tab-inv">📦 Bodega</button>
+                <button class="tab-btn" id="btn-tab-ent">🚚 Entregas</button>
             </nav>
 
             <div id="tab-inventario" class="tab-content active">
                 <form id="form-inventario" class="main-form">
                     <section>
-                        <label>Nuevo Producto</label>
-                        <input type="text" id="inv-name" placeholder="Nombre" required>
+                        <label>Nuevo Producto en Bodega</label>
+                        <input type="text" id="inv-name" placeholder="Nombre del producto" required>
                         <div class="input-group">
-                            <input type="number" id="inv-buy" placeholder="Costo Q">
-                            <input type="number" id="inv-sell" placeholder="Venta Q">
+                            <input type="number" id="inv-buy" placeholder="Costo Compra Q">
+                            <input type="number" id="inv-sell" placeholder="Precio Venta Q">
                         </div>
                         <input type="number" id="inv-stock" placeholder="Stock Inicial" required>
-                        <input type="url" id="inv-photo" placeholder="Link Foto">
+                        <input type="url" id="inv-photo" placeholder="Link de Foto (URL)">
                     </section>
                     <button type="submit">💾 Guardar en Bodega</button>
                 </form>
@@ -43,15 +43,32 @@
             <div id="tab-entregas" class="tab-content">
                 <form id="form-entrega" class="main-form">
                     <section id="pedidos-inputs">
-                        <label>Registrar Pedido (Descuenta Stock)</label>
+                        <label>Registrar Entrega (Resta Stock)</label>
+                        
                         <div class="pedido-row">
                             <select class="ent-name-select" required><option value="">Producto 1...</option></select>
                             <input type="number" class="ent-qty-input" placeholder="Cant.">
                         </div>
-                        <div class="pedido-row"><select class="ent-name-select"><option value="">Producto 2...</option></select><input type="number" class="ent-qty-input"></div>
-                        
-                        <input type="tel" id="ent-wa" placeholder="WhatsApp Cliente">
-                        <input type="text" id="ent-place" placeholder="📍 Lugar">
+                        <div class="pedido-row">
+                            <select class="ent-name-select"><option value="">Producto 2...</option></select>
+                            <input type="number" class="ent-qty-input" placeholder="Cant.">
+                        </div>
+                        <div class="pedido-row">
+                            <select class="ent-name-select"><option value="">Producto 3...</option></select>
+                            <input type="number" class="ent-qty-input" placeholder="Cant.">
+                        </div>
+                        <div class="pedido-row">
+                            <select class="ent-name-select"><option value="">Producto 4...</option></select>
+                            <input type="number" class="ent-qty-input" placeholder="Cant.">
+                        </div>
+                        <div class="pedido-row">
+                            <select class="ent-name-select"><option value="">Producto 5...</option></select>
+                            <input type="number" class="ent-qty-input" placeholder="Cant.">
+                        </div>
+
+                        <hr>
+                        <input type="tel" id="ent-wa" placeholder="WhatsApp del Cliente">
+                        <input type="text" id="ent-place" placeholder="📍 Lugar de entrega">
                         <input type="datetime-local" id="ent-time">
                     </section>
                     <button type="submit" style="background: #007bff;">📝 Crear Entrega</button>
@@ -61,7 +78,10 @@
         </div>
     </div>
 
-    <div id="photo-modal" onclick="this.style.display='none'"><img id="modal-img" src=""></div>
+    <div id="photo-modal" onclick="this.style.display='none'">
+        <img id="modal-img" src="">
+    </div>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>
