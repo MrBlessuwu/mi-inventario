@@ -137,21 +137,35 @@ onSnapshot(entCol, (snapshot) => {
         const urgency = window.getUrgencyClass(e.time);
         let itemsHTML = e.items.map(i => `• ${i.qty} x ${i.name}`).join("<br>");
 
-        list.innerHTML += `
-            <div class="card ${urgency}">
-                <div class="card-body" style="padding:15px">
-                    <div style="font-weight:bold">${itemsHTML}</div>
-                    <span class="total-pay">TOTAL: Q${e.total}</span>
-                    <p>📍 ${e.place || 'Sin lugar'}</p>
-                    <p>⏰ ${window.formatAMPM(e.time)}</p>
+        // --- DENTRO DEL onSnapshot de invCol ---
+snapshot.forEach(docSnap => {
+    const p = docSnap.data();
+    const id = docSnap.id;
+    productosLocales.push({...p, id});
+    options += `<option value="${p.name}">${p.name} (${p.stock})</option>`;
+
+    // Determinamos el icono y color según la visibilidad
+    const isVisible = p.visible !== false;
+    const eyeIcon = isVisible ? "👁️" : "🚫";
+    const eyeColor = isVisible ? "#28a745" : "#666";
+
+    list.innerHTML += `
+        <div class="card verde">
+            <div class="card-header">
+                <img src="${p.photo || 'https://via.placeholder.com/100'}" onclick="window.showBigPhoto('${p.photo}')">
+                <div>
+                    <h2>${p.name}</h2>
+                    <span class="price-tag">Venta: Q${p.sellPrice} | Stock: ${p.stock}</span>
                 </div>
-                <div class="card-actions">
-                    <a href="https://wa.me/${e.whatsapp}" class="btn-item wa" target="_blank">💬</a>
-                    <button class="btn-item edit" onclick="window.editDelivery('${id}')">📅</button>
-                    <button class="btn-item del" onclick="window.deleteItem('entregas','${id}')">🗑️</button>
-                </div>
-            </div>`;
-    });
+            </div>
+            <div class="card-actions">
+                <button class="btn-item" style="background: ${eyeColor}; color: white;" onclick="window.toggleVisibility('${id}', ${isVisible})">${eyeIcon}</button>
+                
+                <button class="btn-item edit" onclick="window.updateStock('${id}', ${p.stock})">✏️</button>
+                <button class="btn-item del" onclick="window.deleteItem('productos','${id}')">🗑️</button>
+            </div>
+        </div>`;
+});
 });
 
 // FUNCIONES GLOBALES (Window)
@@ -187,3 +201,4 @@ window.showBigPhoto = (url) => {
     document.getElementById("modal-img").src = url || 'https://via.placeholder.com/300';
     modal.style.display = "flex";
 };
+
