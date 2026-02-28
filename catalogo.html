@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cajita Mágica GT - Catálogo</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .header-cliente { background: #ff85a2; color: white; padding: 20px; text-align: center; border-radius: 0 0 20px 20px; }
+        .grid-catalogo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .card-cliente { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .card-cliente img { width: 100%; height: 150px; object-fit: cover; }
+        .info-cliente { padding: 10px; text-align: center; flex-grow: 1; }
+        .precio-cliente { color: #ff4d6d; font-weight: bold; font-size: 18px; }
+        .btn-pedir { background: #25d366; color: white; border: none; padding: 10px; border-radius: 10px; margin: 10px; cursor: pointer; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header-cliente">
+        <h1>✨ Cajita Mágica GT ✨</h1>
+        <p>Elige tus favoritos y pídelos por WhatsApp</p>
+    </div>
+
+    <div id="grid-catalogo" class="grid-catalogo">
+        </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = { /* PEGA TUS MISMAS CREDENCIALES AQUÍ */ };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        onSnapshot(collection(db, "productos"), (snapshot) => {
+            const grid = document.getElementById("grid-catalogo");
+            grid.innerHTML = "";
+            snapshot.forEach(docSnap => {
+                const p = docSnap.data();
+                // Solo mostrar si tiene stock y tú activaste la opción (opcional)
+                if (p.stock > 0) {
+                    grid.innerHTML += `
+                        <div class="card-cliente">
+                            <img src="${p.photo || 'https://via.placeholder.com/150'}" onclick="window.parent.showBigPhoto('${p.photo}')">
+                            <div class="info-cliente">
+                                <h3>${p.name}</h3>
+                                <p class="precio-cliente">Q${p.sellPrice}</p>
+                                <p style="font-size:12px; color:gray">Disponibles: ${p.stock}</p>
+                            </div>
+                            <a href="https://wa.me/502XXXXXXXX?text=Hola! Me interesa el producto: ${p.name}" class="btn-pedir">Pedir ✨</a>
+                        </div>`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
