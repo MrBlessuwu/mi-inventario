@@ -3,55 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cajita Mágica GT - Catálogo</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Cajita Mágica GT - Catálogo ✨</title>
     <style>
-        .header-cliente { background: #ff85a2; color: white; padding: 20px; text-align: center; border-radius: 0 0 20px 20px; }
-        .grid-catalogo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .card-cliente { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
-        .card-cliente img { width: 100%; height: 150px; object-fit: cover; }
-        .info-cliente { padding: 10px; text-align: center; flex-grow: 1; }
-        .precio-cliente { color: #ff4d6d; font-weight: bold; font-size: 18px; }
-        .btn-pedir { background: #25d366; color: white; border: none; padding: 10px; border-radius: 10px; margin: 10px; cursor: pointer; text-decoration: none; font-weight: bold; }
+        body { font-family: sans-serif; background: #fdf0f3; margin: 0; padding-bottom: 50px; }
+        .hero { background: #ff85a2; color: white; text-align: center; padding: 30px 10px; border-radius: 0 0 30px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        .product-card { background: white; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .product-card img { width: 100%; height: 160px; object-fit: cover; }
+        .p-info { padding: 12px; text-align: center; }
+        .p-info h3 { margin: 5px 0; font-size: 16px; color: #444; }
+        .p-price { color: #ff4d6d; font-weight: bold; font-size: 20px; margin-bottom: 10px; display: block; }
+        .btn-wa { background: #25d366; color: white; text-decoration: none; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 14px; margin-top: auto; }
+        #photo-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; }
+        #modal-img { max-width: 90%; border-radius: 15px; }
     </style>
 </head>
 <body>
-    <div class="header-cliente">
-        <h1>✨ Cajita Mágica GT ✨</h1>
-        <p>Elige tus favoritos y pídelos por WhatsApp</p>
+    <div class="hero">
+        <h1 style="margin:0">Cajita Mágica GT 🐧</h1>
+        <p style="opacity:0.9">¡Elige lo que más te guste!</p>
     </div>
 
-    <div id="grid-catalogo" class="grid-catalogo">
+    <div id="grid-productos" class="grid">
         </div>
+
+    <div id="photo-modal" onclick="this.style.display='none'"><img id="modal-img" src=""></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = { /* PEGA TUS MISMAS CREDENCIALES AQUÍ */ };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtMQRYTfJfkwoWqTSxXSZJGYo-gKOt-Dg",
+            authDomain: "miinventario-51af9.firebaseapp.com",
+            projectId: "miinventario-51af9",
+            storageBucket: "miinventario-51af9.firebasestorage.app",
+            messagingSenderId: "791233911695",
+            appId: "1:791233911695:web:030a17ce8e76e5f79849fa"
+        };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         onSnapshot(collection(db, "productos"), (snapshot) => {
-            const grid = document.getElementById("grid-catalogo");
+            const grid = document.getElementById("grid-productos");
             grid.innerHTML = "";
             snapshot.forEach(docSnap => {
                 const p = docSnap.data();
-                // Solo mostrar si tiene stock y tú activaste la opción (opcional)
                 if (p.stock > 0) {
                     grid.innerHTML += `
-                        <div class="card-cliente">
-                            <img src="${p.photo || 'https://via.placeholder.com/150'}" onclick="window.parent.showBigPhoto('${p.photo}')">
-                            <div class="info-cliente">
+                        <div class="product-card">
+                            <img src="${p.photo || 'https://via.placeholder.com/150'}" onclick="showPic('${p.photo}')">
+                            <div class="p-info">
                                 <h3>${p.name}</h3>
-                                <p class="precio-cliente">Q${p.sellPrice}</p>
-                                <p style="font-size:12px; color:gray">Disponibles: ${p.stock}</p>
+                                <span class="p-price">Q${p.sellPrice}</span>
+                                <a href="https://wa.me/502XXXXXXXX?text=Hola! Quiero pedir: ${p.name}" class="btn-wa">Pedir por WA</a>
                             </div>
-                            <a href="https://wa.me/502XXXXXXXX?text=Hola! Me interesa el producto: ${p.name}" class="btn-pedir">Pedir ✨</a>
                         </div>`;
                 }
             });
         });
+
+        window.showPic = (url) => {
+            document.getElementById("photo-modal").style.display = "flex";
+            document.getElementById("modal-img").src = url || 'https://via.placeholder.com/300';
+        };
     </script>
 </body>
 </html>
