@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Ventas y Entregas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📦 Mi Inventario y Pedidos</h1>
+        
+        <form id="product-form">
+            <input type="text" id="name" placeholder="Producto" required>
+            <input type="number" id="buyPrice" placeholder="Costo Compra ($)" step="0.01" required>
+            <input type="number" id="sellPrice" placeholder="Precio Venta ($)" step="0.01" required>
+            <input type="number" id="quantity" placeholder="Stock" required>
+            <input type="url" id="photo" placeholder="Link Foto">
+            <input type="tel" id="whatsapp" placeholder="WhatsApp Cliente">
+            <input type="text" id="deliveryPlace" placeholder="Lugar de Entrega">
+            <input type="datetime-local" id="deliveryTime">
+            <button type="submit" id="btn-save">Registrar Producto/Pedido</button>
+        </form>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Producto</th>
+                        <th>Precios (C/V)</th>
+                        <th>Stock</th>
+                        <th>Entrega (Fecha/Lugar)</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-list"></tbody>
+            </table>
+        </div>
+    </div>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
