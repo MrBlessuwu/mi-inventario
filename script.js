@@ -45,7 +45,7 @@ document.getElementById("form-inventario").addEventListener("submit", async (e) 
             sellPrice: Number(document.getElementById("inv-sell").value),
             stock: Number(document.getElementById("inv-stock").value),
             photo: document.getElementById("inv-photo").value,
-            visible: document.getElementById("inv-visible").checked
+            
         });
         e.target.reset();
         alert("¡Guardado en Bodega! ✨");
@@ -211,4 +211,5 @@ window.toggleVisibility = async (id, currentStatus) => {
         alert("Error al cambiar visibilidad");
     }
 };
+
 
