@@ -31,11 +31,10 @@ const showTab = (tabName) => {
     }
 };
 
-// Aseguramos que los botones existan antes de ponerles el evento
 document.getElementById('btn-tab-inv')?.addEventListener('click', () => showTab('inv'));
 document.getElementById('btn-tab-ent')?.addEventListener('click', () => showTab('ent'));
 
-// --- BODEGA ---
+// --- BODEGA (GUARDAR) ---
 document.getElementById("form-inventario").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
@@ -45,14 +44,14 @@ document.getElementById("form-inventario").addEventListener("submit", async (e) 
             sellPrice: Number(document.getElementById("inv-sell").value),
             stock: Number(document.getElementById("inv-stock").value),
             photo: document.getElementById("inv-photo").value,
-            
+            visible: true 
         });
         e.target.reset();
         alert("¡Guardado en Bodega! ✨");
     } catch(err) { alert("Error: " + err); }
 });
 
-// --- ENTREGAS ---
+// --- ENTREGAS (GUARDAR Y RESTAR STOCK) ---
 document.getElementById("form-entrega").addEventListener("submit", async (e) => {
     e.preventDefault();
     const selects = document.querySelectorAll(".ent-name-select");
@@ -91,11 +90,11 @@ document.getElementById("form-entrega").addEventListener("submit", async (e) => 
             await updateDoc(doc(db, "productos", act.id), { stock: act.nuevoStock });
         }
         e.target.reset();
-        alert("✅ Entrega registrada y stock descontado");
-    } catch (err) { console.error(err); }
+        alert("✅ Entrega registrada");
+    } catch (err) { alert("Error: " + err); }
 });
 
-// --- RENDERIZADO ---
+// --- RENDERIZADO BODEGA ---
 onSnapshot(invCol, (snapshot) => {
     const list = document.getElementById("list-inventario");
     const selects = document.querySelectorAll(".ent-name-select");
@@ -109,18 +108,22 @@ onSnapshot(invCol, (snapshot) => {
         productosLocales.push({...p, id});
         options += `<option value="${p.name}">${p.name} (${p.stock})</option>`;
 
+        const isVisible = p.visible !== false;
+        const eyeIcon = isVisible ? "👁️" : "🚫";
+        const eyeColor = isVisible ? "#28a745" : "#666";
+
         list.innerHTML += `
             <div class="card verde">
                 <div class="card-header">
                     <img src="${p.photo || 'https://via.placeholder.com/100'}" onclick="window.showBigPhoto('${p.photo}')">
                     <div>
                         <h2>${p.name}</h2>
-                        <span class="price-tag">Venta: Q${p.sellPrice} | Stock: ${p.stock}</span><br>
-                        <small>${p.visible !== false ? "👁️ Público" : "🚫 Oculto"}</small>
+                        <span class="price-tag">Venta: Q${p.sellPrice} | Stock: ${p.stock}</span>
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-item edit" onclick="window.updateStock('${id}', ${p.stock})">✏️</button>
+                    <button class="btn-item" style="background: ${eyeColor}; color: white;" onclick="window.toggleVisibility('${id}', ${isVisible})">${eyeIcon}</button>
+                    <button class="btn-item edit" onclick="window.editProduct('${id}', ${p.stock}, '${p.photo}')">✏️</button>
                     <button class="btn-item del" onclick="window.deleteItem('productos','${id}')">🗑️</button>
                 </div>
             </div>`;
@@ -128,6 +131,7 @@ onSnapshot(invCol, (snapshot) => {
     selects.forEach(s => s.innerHTML = options);
 });
 
+// --- RENDERIZADO ENTREGAS ---
 onSnapshot(entCol, (snapshot) => {
     const list = document.getElementById("list-entregas");
     list.innerHTML = "";
@@ -137,41 +141,39 @@ onSnapshot(entCol, (snapshot) => {
         const urgency = window.getUrgencyClass(e.time);
         let itemsHTML = e.items.map(i => `• ${i.qty} x ${i.name}`).join("<br>");
 
-        // --- DENTRO DEL onSnapshot de invCol ---
-snapshot.forEach(docSnap => {
-    const p = docSnap.data();
-    const id = docSnap.id;
-    productosLocales.push({...p, id});
-    options += `<option value="${p.name}">${p.name} (${p.stock})</option>`;
-
-    // Determinamos el icono y color según la visibilidad
-    const isVisible = p.visible !== false;
-    const eyeIcon = isVisible ? "👁️" : "🚫";
-    const eyeColor = isVisible ? "#28a745" : "#666";
-
-    list.innerHTML += `
-        <div class="card verde">
-            <div class="card-header">
-                <img src="${p.photo || 'https://via.placeholder.com/100'}" onclick="window.showBigPhoto('${p.photo}')">
-                <div>
-                    <h2>${p.name}</h2>
-                    <span class="price-tag">Venta: Q${p.sellPrice} | Stock: ${p.stock}</span>
+        list.innerHTML += `
+            <div class="card ${urgency}">
+                <div class="card-body" style="padding:15px">
+                    <div style="font-weight:bold">${itemsHTML}</div>
+                    <span class="total-pay">TOTAL: Q${e.total}</span>
+                    <p>📍 ${e.place || 'Sin lugar'}</p>
+                    <p>⏰ ${window.formatAMPM(e.time)}</p>
                 </div>
-            </div>
-            <div class="card-actions">
-                <button class="btn-item" style="background: ${eyeColor}; color: white;" onclick="window.toggleVisibility('${id}', ${isVisible})">${eyeIcon}</button>
-                
-                <button class="btn-item edit" onclick="window.updateStock('${id}', ${p.stock})">✏️</button>
-                <button class="btn-item del" onclick="window.deleteItem('productos','${id}')">🗑️</button>
-            </div>
-        </div>`;
-});
+                <div class="card-actions">
+                    <a href="https://wa.me/${e.whatsapp}" class="btn-item wa" target="_blank">💬</a>
+                    <button class="btn-item edit" onclick="window.editDelivery('${id}')">📅</button>
+                    <button class="btn-item del" onclick="window.deleteItem('entregas','${id}')">🗑️</button>
+                </div>
+            </div>`;
+    });
 });
 
-// FUNCIONES GLOBALES (Window)
-window.updateStock = async (id, oldStock) => {
-    const n = prompt("Nuevo Stock:", oldStock);
-    if (n !== null) await updateDoc(doc(db, "productos", id), { stock: Number(n) });
+// --- FUNCIONES GLOBALES ---
+window.editProduct = async (id, oldStock, oldPhoto) => {
+    const nuevoStock = prompt("Nuevo Stock:", oldStock);
+    const nuevaPhoto = prompt("Nuevo Link de Foto (Deja en blanco para no cambiar):", oldPhoto);
+    
+    let updates = {};
+    if (nuevoStock !== null) updates.stock = Number(nuevoStock);
+    if (nuevaPhoto !== null && nuevaPhoto !== "") updates.photo = nuevaPhoto;
+
+    if (Object.keys(updates).length > 0) {
+        await updateDoc(doc(db, "productos", id), updates);
+    }
+};
+
+window.toggleVisibility = async (id, currentStatus) => {
+    await updateDoc(doc(db, "productos", id), { visible: !currentStatus });
 };
 
 window.editDelivery = async (id) => {
@@ -181,7 +183,7 @@ window.editDelivery = async (id) => {
 };
 
 window.deleteItem = async (col, id) => {
-    if(confirm("¿Eliminar?")) await deleteDoc(doc(db, col, id));
+    if(confirm("¿Eliminar definitivamente?")) await deleteDoc(doc(db, col, id));
 };
 
 window.getUrgencyClass = (dateStr) => {
@@ -192,8 +194,7 @@ window.getUrgencyClass = (dateStr) => {
 
 window.formatAMPM = (dateStr) => {
     if (!dateStr) return "Sin fecha";
-    const date = new Date(dateStr);
-    return date.toLocaleString();
+    return new Date(dateStr).toLocaleString();
 };
 
 window.showBigPhoto = (url) => {
@@ -201,15 +202,6 @@ window.showBigPhoto = (url) => {
     document.getElementById("modal-img").src = url || 'https://via.placeholder.com/300';
     modal.style.display = "flex";
 };
-// Función para cambiar si el cliente ve o no el producto
-window.toggleVisibility = async (id, currentStatus) => {
-    try {
-        await updateDoc(doc(db, "productos", id), {
-            visible: !currentStatus
-        });
-    } catch (error) {
-        alert("Error al cambiar visibilidad");
-    }
-};
+
 
 
