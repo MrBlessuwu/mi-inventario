@@ -2,42 +2,42 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Ventas y Entregas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mi Inventario Pro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>📦 Mi Inventario y Pedidos</h1>
+        <h1>📦 Mis Pedidos</h1>
         
         <form id="product-form">
             <input type="text" id="name" placeholder="Producto" required>
-            <input type="number" id="buyPrice" placeholder="Costo Compra ($)" step="0.01" required>
-            <input type="number" id="sellPrice" placeholder="Precio Venta ($)" step="0.01" required>
-            <input type="number" id="quantity" placeholder="Stock" required>
-            <input type="url" id="photo" placeholder="Link Foto">
+            <div class="row">
+                <input type="number" id="buyPrice" placeholder="Costo" step="0.01">
+                <input type="number" id="sellPrice" placeholder="Venta" step="0.01">
+            </div>
+            <input type="number" id="quantity" placeholder="Cantidad">
+            <input type="text" id="photo" placeholder="Link de Foto (URL)">
             <input type="tel" id="whatsapp" placeholder="WhatsApp Cliente">
-            <input type="text" id="deliveryPlace" placeholder="Lugar de Entrega">
+            <input type="text" id="deliveryPlace" placeholder="Lugar Entrega">
             <input type="datetime-local" id="deliveryTime">
-            <button type="submit" id="btn-save">Registrar Producto/Pedido</button>
+            <button type="submit" id="btn-save">➕ Guardar en Inventario</button>
         </form>
 
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Foto</th>
-                        <th>Producto</th>
-                        <th>Precios (C/V)</th>
-                        <th>Stock</th>
-                        <th>Entrega (Fecha/Lugar)</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="inventory-list"></tbody>
-            </table>
+        <div id="urgentes-section">
+            <h3>🚨 Entregas Próximas</h3>
+            <div id="lista-urgentes"></div>
         </div>
+
+        <h3>📦 Todos los Productos</h3>
+        <div id="inventory-list">
+            </div>
     </div>
+
+    <div id="photo-modal" onclick="this.style.display='none'">
+        <img id="modal-img" src="" alt="Foto grande">
+    </div>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>
