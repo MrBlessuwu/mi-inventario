@@ -31,30 +31,32 @@ const showTab = (tabName) => {
     }
 };
 
-document.getElementById('btn-tab-inv').addEventListener('click', () => showTab('inv'));
-document.getElementById('btn-tab-ent').addEventListener('click', () => showTab('ent'));
+// Aseguramos que los botones existan antes de ponerles el evento
+document.getElementById('btn-tab-inv')?.addEventListener('click', () => showTab('inv'));
+document.getElementById('btn-tab-ent')?.addEventListener('click', () => showTab('ent'));
 
-// --- GESTIÓN DE BODEGA ---
+// --- BODEGA ---
 document.getElementById("form-inventario").addEventListener("submit", async (e) => {
     e.preventDefault();
-    await addDoc(invCol, {
-        name: document.getElementById("inv-name").value,
-        buyPrice: Number(document.getElementById("inv-buy").value),
-        sellPrice: Number(document.getElementById("inv-sell").value),
-        stock: Number(document.getElementById("inv-stock").value),
-        photo: document.getElementById("inv-photo").value,
-        visible: document.getElementById("inv-visible").checked // Guarda si es visible
-    });
-    e.target.reset();
-    alert("Producto guardado ✨");
+    try {
+        await addDoc(invCol, {
+            name: document.getElementById("inv-name").value,
+            buyPrice: Number(document.getElementById("inv-buy").value),
+            sellPrice: Number(document.getElementById("inv-sell").value),
+            stock: Number(document.getElementById("inv-stock").value),
+            photo: document.getElementById("inv-photo").value,
+            visible: document.getElementById("inv-visible").checked
+        });
+        e.target.reset();
+        alert("¡Guardado en Bodega! ✨");
+    } catch(err) { alert("Error: " + err); }
 });
 
-// --- GESTIÓN DE ENTREGAS ---
+// --- ENTREGAS ---
 document.getElementById("form-entrega").addEventListener("submit", async (e) => {
     e.preventDefault();
     const selects = document.querySelectorAll(".ent-name-select");
     const inputs = document.querySelectorAll(".ent-qty-input");
-    
     let itemsPedidos = [];
     let granTotal = 0;
     let actualizacionesStock = [];
@@ -65,7 +67,7 @@ document.getElementById("form-entrega").addEventListener("submit", async (e) => 
         if (name && qty > 0) {
             const prod = productosLocales.find(p => p.name === name);
             if (!prod || prod.stock < qty) {
-                alert(`❌ Stock insuficiente de ${name}. Disponible: ${prod ? prod.stock : 0}`);
+                alert(`❌ No hay suficiente de ${name}`);
                 return;
             }
             itemsPedidos.push({ name, qty, unitPrice: prod.sellPrice });
@@ -74,7 +76,7 @@ document.getElementById("form-entrega").addEventListener("submit", async (e) => 
         }
     }
 
-    if (itemsPedidos.length === 0) return alert("Agrega al menos un producto");
+    if (itemsPedidos.length === 0) return alert("Selecciona productos");
 
     try {
         await addDoc(entCol, {
@@ -88,27 +90,24 @@ document.getElementById("form-entrega").addEventListener("submit", async (e) => 
         for (const act of actualizacionesStock) {
             await updateDoc(doc(db, "productos", act.id), { stock: act.nuevoStock });
         }
-
         e.target.reset();
-        alert("✅ Pedido creado y stock descontado.");
+        alert("✅ Entrega registrada y stock descontado");
     } catch (err) { console.error(err); }
 });
 
-// --- RENDERIZADO BODEGA ---
+// --- RENDERIZADO ---
 onSnapshot(invCol, (snapshot) => {
     const list = document.getElementById("list-inventario");
     const selects = document.querySelectorAll(".ent-name-select");
     list.innerHTML = "";
     productosLocales = [];
-    
     let options = '<option value="">Producto...</option>';
+
     snapshot.forEach(docSnap => {
         const p = docSnap.data();
         const id = docSnap.id;
         productosLocales.push({...p, id});
-        options += `<option value="${p.name}">${p.name} (Disp: ${p.stock})</option>`;
-
-        const estadoCat = p.visible !== false ? "👁️ En Catálogo" : "🚫 Oculto";
+        options += `<option value="${p.name}">${p.name} (${p.stock})</option>`;
 
         list.innerHTML += `
             <div class="card verde">
@@ -117,7 +116,7 @@ onSnapshot(invCol, (snapshot) => {
                     <div>
                         <h2>${p.name}</h2>
                         <span class="price-tag">Venta: Q${p.sellPrice} | Stock: ${p.stock}</span><br>
-                        <small style="color: #666;">${estadoCat}</small>
+                        <small>${p.visible !== false ? "👁️ Público" : "🚫 Oculto"}</small>
                     </div>
                 </div>
                 <div class="card-actions">
@@ -129,7 +128,6 @@ onSnapshot(invCol, (snapshot) => {
     selects.forEach(s => s.innerHTML = options);
 });
 
-// --- RENDERIZADO ENTREGAS ---
 onSnapshot(entCol, (snapshot) => {
     const list = document.getElementById("list-entregas");
     list.innerHTML = "";
@@ -156,20 +154,20 @@ onSnapshot(entCol, (snapshot) => {
     });
 });
 
-// --- FUNCIONES GLOBALES ---
+// FUNCIONES GLOBALES (Window)
 window.updateStock = async (id, oldStock) => {
-    const nuevo = prompt("Corregir Stock Total:", oldStock);
-    if (nuevo !== null) await updateDoc(doc(db, "productos", id), { stock: Number(nuevo) });
+    const n = prompt("Nuevo Stock:", oldStock);
+    if (n !== null) await updateDoc(doc(db, "productos", id), { stock: Number(n) });
 };
 
 window.editDelivery = async (id) => {
     const nL = prompt("Nuevo lugar:");
-    const nF = prompt("Nueva fecha/hora (AAAA-MM-DD HH:MM):");
+    const nF = prompt("Nueva fecha (AAAA-MM-DD HH:MM):");
     if (nL || nF) await updateDoc(doc(db, "entregas", id), { place: nL, time: nF });
 };
 
 window.deleteItem = async (col, id) => {
-    if(confirm("¿Borrar definitivamente?")) await deleteDoc(doc(db, col, id));
+    if(confirm("¿Eliminar?")) await deleteDoc(doc(db, col, id));
 };
 
 window.getUrgencyClass = (dateStr) => {
@@ -181,7 +179,7 @@ window.getUrgencyClass = (dateStr) => {
 window.formatAMPM = (dateStr) => {
     if (!dateStr) return "Sin fecha";
     const date = new Date(dateStr);
-    return date.toLocaleDateString() + " " + date.getHours() % 12 + ":" + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + (date.getHours() >= 12 ? ' PM' : ' AM');
+    return date.toLocaleString();
 };
 
 window.showBigPhoto = (url) => {
@@ -189,6 +187,3 @@ window.showBigPhoto = (url) => {
     document.getElementById("modal-img").src = url || 'https://via.placeholder.com/300';
     modal.style.display = "flex";
 };
-
-
-
