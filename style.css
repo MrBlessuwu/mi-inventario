@@ -224,6 +224,20 @@ button[type="submit"] {
     align-items: center;
 }
 #modal-img { max-width: 90%; max-height: 80%; border-radius: 10px; }
+.price-tag-container {
+    display: flex;
+    gap: 5px;
+    margin: 5px 0;
+    flex-wrap: wrap;
+}
+
+.price-tag {
+    background: #eee;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+}
 
 
 
