@@ -24,7 +24,40 @@ window.showTab = (tabId) => {
     document.getElementById(tabId).classList.add('active');
     event.currentTarget.classList.add('active');
 };
+// ... (Mantén tus importaciones y Firebase Config igual) ...
 
+// --- FUNCIÓN DE CONTRASEÑA ---
+window.checkPass = () => {
+    const pass = document.getElementById('pass-input').value;
+    if (pass === "pinguinito") {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+    } else {
+        alert("Contraseña incorrecta 🐧");
+    }
+};
+
+// --- FUNCIÓN EDITAR ENTREGA (Lugar, Fecha, Hora) ---
+window.editDelivery = async (id) => {
+    const nuevoLugar = prompt("¿Cuál es el nuevo lugar de entrega?");
+    const nuevaFecha = prompt("¿Nueva fecha y hora? (Ej: 2026-03-20 15:30)");
+    
+    if (nuevoLugar !== null || nuevaFecha !== null) {
+        try {
+            await updateDoc(doc(db, "entregas", id), {
+                place: nuevoLugar,
+                time: nuevaFecha
+            });
+            alert("✅ Entrega actualizada.");
+        } catch (error) {
+            alert("Error al actualizar.");
+        }
+    }
+};
+
+// --- EL RESTO DE TU LÓGICA (Descuento de Stock, Renderizado, etc.) ---
+// Asegúrate de incluir la parte de "actualizacionesStock" que hicimos en el paso anterior
+// para que el stock se reste de la bodega automáticamente.
 // --- BODEGA ---
 document.getElementById("form-inventario").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -183,6 +216,7 @@ onSnapshot(entCol, (snapshot) => {
             </div>`;
     });
 });
+
 
 
 
